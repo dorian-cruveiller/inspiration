@@ -21,7 +21,7 @@ class Recommend {
             maxSongs = 20
         }
 
-        val topIdList = getTopSongsIds(number)
+        val topIdList = getTopSongsIds(5)
 
         var idString = ""
 
