@@ -18,12 +18,11 @@ class MainActivity : ComponentActivity() {
 
         var default = "welcome"
 
-        val token = TokenManager(applicationContext).getToken();
+        val token = TokenManager(applicationContext).getToken()
 
         if (token != null) {
-            default = "welcome"
-            Log.d("MainActivity", "onCreate: already connected")
-            Log.d("MainActivity", "onCreate: token: $token")
+            default = "recommend"
+            Constants.token = token
         }
 
         setContent {

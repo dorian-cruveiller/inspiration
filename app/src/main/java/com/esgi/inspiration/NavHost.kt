@@ -20,5 +20,10 @@ fun RootNavHost(default: String){
         ) {
             LoginScreen(navController)
         }
+        composable(
+            route = "recommend"
+        ) {
+            RecommendScreen(navController)
+        }
     }
 }

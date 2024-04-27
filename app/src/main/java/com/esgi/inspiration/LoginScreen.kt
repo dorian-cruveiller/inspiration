@@ -20,11 +20,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
+import androidx.navigation.navArgument
 import com.esgi.inspiration.network.Authorization
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+@SuppressLint("SetJavaScriptEnabled")
 @Composable
 internal fun LoginScreen(navController: NavHostController) {
 
@@ -32,36 +34,30 @@ internal fun LoginScreen(navController: NavHostController) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        WebViewComponent(url = Authorization().getLoginUrl())
-    }
-}
+        AndroidView(
+            modifier = Modifier.fillMaxSize(),
+            factory = { context ->
+                WebView(context).apply {
+                    settings.javaScriptEnabled = true
+                    webViewClient = object : WebViewClient() {
+                        override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                            super.onPageStarted(view, url, favicon)
 
-@SuppressLint("SetJavaScriptEnabled")
-@Composable
-fun WebViewComponent(url: String) {
-    AndroidView(
-        modifier = Modifier.fillMaxSize(),
-        factory = { context ->
-            WebView(context).apply {
-                settings.javaScriptEnabled = true
-                webViewClient = object : WebViewClient() {
-                    override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                        super.onPageStarted(view, url, favicon)
-
-                        if (url?.contains("https://127.0.0.1/?code=") == true) {
-                            val code = url.substring(24, url.length)
-                            CoroutineScope(Dispatchers.Main).launch {
-                                Authorization().getToken(code, getContext())
+                            if (url?.contains("https://127.0.0.1/?code=") == true) {
+                                val code = url.substring(24, url.length)
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    Authorization().getToken(code, getContext())
+                                    navController.navigate("recommend")
+                                }
                             }
                         }
-
-                        Log.d("MainActivity", "onPageStarted: url: " + url)
                     }
+
                 }
+            },
+            update = {
+                it.loadUrl(Authorization().getLoginUrl())
             }
-        },
-        update = {
-            it.loadUrl(url)
-        }
-    )
+        )
+    }
 }

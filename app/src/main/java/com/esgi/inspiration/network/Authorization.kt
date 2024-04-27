@@ -57,8 +57,7 @@ class Authorization {
 
         val token: Token = response.body()
         TokenManager(context).saveToken(token.access_token)
-
-        Log.d(TAG, "getToken: token: " + token.access_token)
+        Constants.token = token.access_token
 
         return token.access_token
     }
