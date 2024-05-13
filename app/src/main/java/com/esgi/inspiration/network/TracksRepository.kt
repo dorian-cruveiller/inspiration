@@ -10,18 +10,24 @@ import kotlinx.coroutines.launch
 class TracksRepository {
     private val tracksApiDataSource = TracksApiDataSource()
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
-    private var _trackState = MutableStateFlow(listOf<Track>())
-    var trackState = _trackState
+    private var _recommendedTrackState = MutableStateFlow(listOf<Track>())
+    private var _topTrackState = MutableStateFlow(listOf<Track>());
+    var recommendedTrackState = _recommendedTrackState
+    var topTrackState = _topTrackState
 
-    init {
-        updateTracks()
+    private suspend fun fetchRecommendedTracks(): List<Track> = tracksApiDataSource.getRecommendSong(10)
+
+    private suspend fun fetchTopTracks(): List<Track> = tracksApiDataSource.getTopSongs(10);
+
+    fun updateRecommendedTracks() {
+        coroutineScope.launch {
+            _recommendedTrackState.update { fetchRecommendedTracks() }
+        }
     }
 
-    private suspend fun fetchTracks(): List<Track> = tracksApiDataSource.getRecommendSong(10)
-
-    fun updateTracks() {
+    fun updateTopTracks() {
         coroutineScope.launch {
-            _trackState.update {fetchTracks() }
+            _topTrackState.update { fetchTopTracks() }
         }
     }
 }

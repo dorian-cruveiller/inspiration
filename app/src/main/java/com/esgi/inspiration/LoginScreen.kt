@@ -47,7 +47,7 @@ internal fun LoginScreen(navController: NavHostController) {
                                 val code = url.substring(24, url.length)
                                 CoroutineScope(Dispatchers.Main).launch {
                                     Authorization().getToken(code, getContext())
-                                    navController.navigate("recommend")
+                                    navController.navigate("choose")
                                 }
                             }
                         }

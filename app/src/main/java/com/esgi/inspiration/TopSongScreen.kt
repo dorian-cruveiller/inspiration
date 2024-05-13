@@ -23,11 +23,10 @@ import androidx.compose.ui.unit.sp
 import com.esgi.inspiration.network.TracksRepository
 
 @Composable
-internal fun RecommendScreen(tracksRepository: TracksRepository) {
-
-    val trackState = tracksRepository.recommendedTrackState
+internal fun TopSongScreen(tracksRepository: TracksRepository) {
+    val trackState = tracksRepository.topTrackState
     val tracks = trackState.collectAsState(initial = emptyList())
-    tracksRepository.updateRecommendedTracks()
+    tracksRepository.updateTopTracks()
 
     LazyColumn (
         contentPadding = PaddingValues(16.dp),
@@ -36,7 +35,7 @@ internal fun RecommendScreen(tracksRepository: TracksRepository) {
         if (tracks.value.isNotEmpty()) {
             item {
                 Text (
-                    text = "Recommended songs",
+                    text = "Top songs",
                     modifier = Modifier.padding(0.dp, 24.dp, 0.dp, 32.dp),
                     fontSize = 32.sp,
                     fontWeight = FontWeight.W600
@@ -74,10 +73,10 @@ internal fun RecommendScreen(tracksRepository: TracksRepository) {
                 ) {
                     Button(
                         onClick = {
-                            tracksRepository.updateRecommendedTracks()
+                            tracksRepository.updateTopTracks()
                         }) {
                         Text(
-                            text = "Get More",
+                            text = "Refresh",
                             fontSize = 18.sp,
                             modifier = Modifier.padding(4.dp, 8.dp)
                         )

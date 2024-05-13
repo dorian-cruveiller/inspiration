@@ -24,7 +24,17 @@ fun RootNavHost(default: String){
         composable(
             route = "recommend"
         ) {
-            RecommendScreen(navController, TracksRepository())
+            RecommendScreen(TracksRepository())
+        }
+        composable(
+            route = "choose"
+        ) {
+            ChooseScreen(navController)
+        }
+        composable(
+            route = "likedSongs"
+        ) {
+            TopSongScreen(TracksRepository())
         }
     }
 }

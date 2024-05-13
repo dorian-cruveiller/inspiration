@@ -7,13 +7,12 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.statement.bodyAsText
-import io.ktor.client.statement.request
 import io.ktor.http.HttpHeaders
 import org.json.JSONObject
 
 class TracksApiDataSource {
 
-    val TAG: String = "MockDataSource"
+    private val TAG: String = "TracksApiDataSource"
 
     private val client = HttpClient()
 
@@ -32,7 +31,7 @@ class TracksApiDataSource {
         for (id in topIdList) {
             idString = "$idString$id,"
         }
-        Log.d(TAG, "getRecommendSong: idString: " + idString)
+        // Log.d(TAG, "getRecommendSong: idString: " + idString)
 
         val response = client.get(Constants.API_URI + "recommendations") {
             headers {
@@ -46,8 +45,8 @@ class TracksApiDataSource {
             }
         }
 
-        Log.d(TAG, "getRecommendSong: response: " + response.bodyAsText())
-        Log.d(TAG, "getRecommendSong: response status: " + response.status)
+        // Log.d(TAG, "getRecommendSong: response: " + response.bodyAsText())
+        // Log.d(TAG, "getRecommendSong: response status: " + response.status)
         val tracksJSON = JSONObject(response.bodyAsText()).getJSONArray("tracks")
 
         val recommendTracks = mutableListOf<Track>()
@@ -86,5 +85,36 @@ class TracksApiDataSource {
         }
 
         return idList
+    }
+
+    suspend fun getTopSongs(number: Int): List<Track> {
+
+        val trackList = mutableListOf<Track>()
+
+        val response = client.get(Constants.API_URI + "me/top/tracks") {
+            headers {
+                append(HttpHeaders.Authorization, "Bearer " + Constants.token)
+            }
+
+            url {
+                parameters.append("time_range", "short_term")
+                parameters.append("limit", number.toString())
+            }
+        }
+
+        // Log.d(TAG, "getTopSongsIds: response: " + response.bodyAsText())
+        val responseJSON = JSONObject(response.bodyAsText())
+        val tracks = responseJSON.getJSONArray("items")
+        for (i in 0..<tracks.length()) {
+            val name = tracks.getJSONObject(i).getString("name")
+            val artist = tracks.getJSONObject(i).getJSONArray("artists").getJSONObject(0).getString("name")
+
+            // Log.d(TAG, "getTopSongs: name: $name")
+            // Log.d(TAG, "getTopSongs: artist: $artist")
+            val track = Track(name, artist)
+            trackList.add(track)
+        }
+
+        return trackList
     }
 }

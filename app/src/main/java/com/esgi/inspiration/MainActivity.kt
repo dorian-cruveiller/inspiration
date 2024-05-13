@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
         val token = TokenManager(applicationContext).getToken()
 
         if (token != null) {
-            default = "recommend"
+            default = "choose"
             Constants.token = token
         }
 
