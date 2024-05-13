@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.esgi.inspiration.network.TracksRepository
 
 @Composable
 fun RootNavHost(default: String){
@@ -23,7 +24,7 @@ fun RootNavHost(default: String){
         composable(
             route = "recommend"
         ) {
-            RecommendScreen(navController)
+            RecommendScreen(navController, TracksRepository())
         }
     }
 }

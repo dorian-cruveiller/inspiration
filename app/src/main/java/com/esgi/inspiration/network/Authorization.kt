@@ -18,8 +18,6 @@ import java.util.Random
 
 class Authorization {
 
-    private val TAG: String = "Authorization"
-
     private fun toBase64(string: String): String {
         return Base64.getEncoder().encodeToString(string.toByteArray())
             .replace("=", "")

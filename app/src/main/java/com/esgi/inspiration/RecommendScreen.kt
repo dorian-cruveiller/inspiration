@@ -1,5 +1,6 @@
 package com.esgi.inspiration
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,6 +15,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,30 +28,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.esgi.inspiration.network.Recommend
+import com.esgi.inspiration.network.TracksRepository
 import com.esgi.inspiration.network.data.Track
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 
 @Composable
-internal fun RecommendScreen(navController: NavHostController) {
+internal fun RecommendScreen(navController: NavHostController, tracksRepository: TracksRepository) {
 
-    var items by remember { mutableStateOf(listOf(Track("Loading", "please wait"))) }
-    var loaded by remember { mutableStateOf(false) }
-
-    LaunchedEffect(null) {
-        CoroutineScope(Dispatchers.Main).launch {
-            items = Recommend().getRecommendSong(10)
-            loaded = true
-        }
-    }
+    val trackState = remember { tracksRepository.trackState }
+    val tracks = trackState.collectAsState(initial = emptyList())
 
     LazyColumn (
         contentPadding = PaddingValues(16.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
 
-        if (loaded) {
+        if (tracks.value.isNotEmpty()) {
             item {
                 Text (
                     text = "Recommended songs",
@@ -59,19 +57,20 @@ internal fun RecommendScreen(navController: NavHostController) {
                 )
             }
 
-            items(items) { item ->
+            items(tracks.value) { track ->
                 Card (
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .wrapContentHeight()
                         .padding(0.dp, 8.dp)
                 ){
                     Text (
-                        text = item.name,
+                        text = track.name,
                         modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 4.dp),
                         fontSize = 21.sp
                     )
                     Text (
-                        text = "by " + item.artist,
+                        text = "by " + track.artist,
                         modifier = Modifier.padding(8.dp, 0.dp, 0.dp, 8.dp),
                         fontSize = 18.sp,
                         fontStyle = FontStyle.Italic
@@ -81,18 +80,15 @@ internal fun RecommendScreen(navController: NavHostController) {
 
             item {
                 Column(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxSize()
                         .padding(0.dp, 8.dp, 0.dp, 0.dp),
                     verticalArrangement = Arrangement.Bottom,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Button(
                         onClick = {
-                            loaded = false
-                            CoroutineScope(Dispatchers.Main).launch {
-                                items = Recommend().getRecommendSong(10)
-                                loaded = true
-                            }
+                            tracksRepository.updateTracks()
                         }) {
                         Text(
                             text = "Get More",
